@@ -3,29 +3,20 @@
   "notGrouped": "bottom",
   "groupings": [
     {
-      "title": "React",
-      "description": "Skills for building production-quality React and React Native interfaces with Vercel engineering patterns.",
+      "title": "General",
+      "description": "Routing and documentation skills that apply before any ImageKit MCP call.",
       "skills": [
-        "vercel-react-best-practices",
-        "vercel-composition-patterns",
-        "vercel-react-view-transitions",
-        "vercel-react-native-skills"
+        "mcp-preflight",
+        "search-docs"
       ]
     },
     {
-      "title": "Vercel",
-      "description": "Skills for deploying, managing, and optimizing applications on Vercel.",
+      "title": "MCP Tools",
+      "description": "Skills for specific ImageKit operations — transformations, uploads, and AI tasks.",
       "skills": [
-        "deploy-to-vercel",
-        "vercel-cli-with-tokens",
-        "vercel-optimize"
-      ]
-    },
-    {
-      "title": "Design",
-      "description": "Skills for reviewing and improving web interfaces, accessibility, and UX quality.",
-      "skills": [
-        "web-design-guidelines"
+        "transformation-builder",
+        "upload-files",
+        "ai-tasks"
       ]
     }
   ]
