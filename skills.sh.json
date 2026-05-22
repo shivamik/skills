@@ -6,14 +6,14 @@
       "title": "General",
       "description": "Routing and documentation skills that apply before any ImageKit MCP call.",
       "skills": [
-        "mcp-preflight",
-        "search-docs"
+        "mcp-preflight"
       ]
     },
     {
       "title": "MCP Tools",
-      "description": "Skills for specific ImageKit operations — transformations, uploads, and AI tasks.",
+      "description": "Skills for specific ImageKit operations — transformations, search docs uploads, and AI tasks.",
       "skills": [
+        "search-docs",
         "transformation-builder",
         "upload-files",
         "ai-tasks"
