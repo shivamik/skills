@@ -7,7 +7,7 @@ Reusable AI agent skills for [ImageKit.io](https://imagekit.io) — install them
 ## Installation
 
 ```bash
-npx skills add shivamik/skills
+npx skills add shivamik/skills --all
 ```
 
 ## Skills
