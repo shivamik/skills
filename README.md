@@ -128,12 +128,10 @@ Or edit your Cursor MCP configuration at `~/.cursor/mcp.json`:
 {
   "mcpServers": {
     "imagekit_public_mcp": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote@latest", "https://devtools-mcp.imagekit.io/mcp"]
+        "url": "https://devtools-mcp.imagekit.io/mcp"
     },
     "imagekit_api": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote@latest", "https://api-mcp.imagekit.in/sse"]
+        "url": "https://api-mcp.imagekit.in/sse"
     }
   }
 }
@@ -154,12 +152,10 @@ Or edit your Windsurf configuration at `~/.codeium/windsurf/mcp_config.json`:
 {
   "mcpServers": {
     "imagekit_public_mcp": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote@latest", "https://devtools-mcp.imagekit.io/mcp"]
+        "url": "https://devtools-mcp.imagekit.io/mcp"
     },
     "imagekit_api": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote@latest", "https://api-mcp.imagekit.in/sse"]
+        "url": "https://api-mcp.imagekit.in/sse"
     }
   }
 }
