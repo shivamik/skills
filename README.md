@@ -15,13 +15,42 @@ Reusable AI agent skills for [ImageKit.io](https://imagekit.io) — install them
 
 ## Installation
 
+You can install skills and MCP servers using either method:
+
+- **Plugin Method (Recommended)**: Use the ImageKit plugin for your platform for guided, one-click setup of skills and MCP servers
+- **Manual Method**: Install skills via CLI and add MCP servers through configuration files
+
+Choose the method that works best for your workflow. Below, each platform shows both options.
+
 ### Claude
 
-You can install skills in Claude Code either using the plugin method or manually.
+#### Plugin Method (Recommended)
 
-**Manual method:**
+Follow these steps to install the ImageKit plugin in Claude Code:
 
-Install Skills
+1. **Open Plugin Settings** — Click on **Customize** in the left sidebar
+   ![Customize option](screenshots/claude/1.png)
+
+2. **Add Marketplace** — Click the **"+"** button and select **Create Plugin** → **Add Marketplace**
+   ![Create Plugin menu](screenshots/claude/2.png)
+
+3. **Enter Plugin URL** — Add `imagekit-developer/skills` in the marketplace URL field
+   ![Add marketplace URL](screenshots/claude/3.png)
+
+4. **Install Plugin** — Find and install the ImageKit Skills plugin
+   ![Install plugin](screenshots/claude/4.png)
+
+5. **Install MCP Servers** — Click on **Connectors** in the installed plugin and install the MCP servers (`imagekit_public_mcp` and `imagekit_api`)
+   ![Install connectors](screenshots/claude/5.png)
+
+6. **Complete Authentication** — Complete authentication for the `imagekit_api` server when prompted
+   ![Authentication](screenshots/claude/6.png)
+
+Once complete, all ImageKit skills and MCP servers are ready to use in Claude Code.
+
+#### Manual Method
+
+**Install Skills**
 
 ```bash
 npx skills add imagekit-developer/skills --all
@@ -84,7 +113,25 @@ url = "https://api-mcp.imagekit.in/sse"
 
 ### VS Code Copilot
 
-Install Skills
+#### Plugin Method (Recommended)
+
+Follow these steps to install the ImageKit plugin in VS Code:
+
+1. **Open Command Palette** — Press `⇧⌘P` and run **Install Plugin from Source**
+   ![Command Palette](screenshots/vscode/7.png)
+
+2. **Add Plugin Repository** — Enter `imagekit-developer/skills` in the plugin source field
+   ![Add repository](screenshots/vscode/8.png)
+
+3. **Complete Installation** — Continue with the installation process as prompted
+
+4. **Restart VS Code** — Restart VS Code for all skills and MCP servers to take effect
+
+Once complete, all ImageKit skills and MCP servers are ready to use in VS Code.
+
+#### Manual Method
+
+**Install Skills**
 
 ```bash
 npx skills add imagekit-developer/skills --all
