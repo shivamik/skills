@@ -1,6 +1,6 @@
 ---
 name: ai-tasks
-description: Apply AI-powered analysis to images for business-specific tagging, metadata extraction, and quality checks using controlled vocabularies. Use when user wants to analyze images and apply structured metadata.
+description: Apply AI-powered analysis to images for business-specific tagging, metadata extraction, and quality checks using controlled vocabularies. Use when user wants to analyze images and apply structured metadata in ImageKit.
 
 ---
 

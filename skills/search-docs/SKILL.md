@@ -28,7 +28,7 @@ This skill MUST be invoked and read before you call `search_docs`. It contains c
 
 **Optional**: `sources` array (default: `["imagekit_guides", "imagekit_community"]`)
 - `imagekit_guides`: Official guides and tutorials
-- `imagekit_community`: User-generated content, practical solutions
+- `imagekit_community`: User-generated content, practical solutions. Great for troubleshooting and real-world use cases.
 - `imagekit_api_references`: Technical API details
 - `imagekit_sdk`: SDK implementation examples
 
@@ -49,8 +49,13 @@ This skill MUST be invoked and read before you call `search_docs`. It contains c
 |----------|---------|
 | General features | `["imagekit_guides", "imagekit_community"]` |
 | API details | `["imagekit_guides", "imagekit_api_references"]` |
-| SDK examples | `["imagekit_sdk", "imagekit_guides"]` |
+| SDK examples | `["imagekit_sdk", "imagekit_guides", "imagekit_community"]` |
 | Troubleshooting | `["imagekit_community", "imagekit_guides"]` |
+
+## Imagekit Community 
+- Valuable for real-world solutions, troubleshooting, and user experiences
+- May contain practical tips not found in official guides
+- Always include community sources. They often provide insights and solutions that official documentation may not cover, especially for troubleshooting and real-world use cases.
 
 ## Handling Results
 

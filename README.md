@@ -1,14 +1,8 @@
 # ImageKit Skills
 
-[![skills.sh](https://skills.sh/b/shivamik/skills)](https://skills.sh/shivamik/skills)
+[![skills.sh](https://skills.sh/b/imagekit-developer/skills)](https://skills.sh/imagekit-developer/skills)
 
 Reusable AI agent skills for [ImageKit.io](https://imagekit.io) — install them with the `skills` CLI to enhance your coding agent's capabilities.
-
-## Installation
-
-```bash
-npx skills add shivamik/skills --all
-```
 
 ## Skills
 
@@ -18,6 +12,160 @@ npx skills add shivamik/skills --all
 | **search-docs** | Search ImageKit documentation with optimized queries and source selection |
 | **transformation-builder** | Build ImageKit image/video transformations — AI editing, background removal, resize, crop, overlays, and more |
 | **upload-files** | Upload files to ImageKit media library with folder paths, tags, and metadata |
+
+## Installation
+
+### Claude
+
+You can install skills in Claude Code either using the plugin method or manually.
+
+**Manual method:**
+
+Install Skills
+
+```bash
+npx skills add imagekit-developer/skills --all
+```
+
+Run the following command in your terminal:
+
+```bash
+claude mcp add imagekit_public_mcp https://devtools-mcp.imagekit.io/mcp
+claude mcp add imagekit_api --transport sse https://api-mcp.imagekit.in/sse
+```
+
+Or edit your Claude Desktop configuration file:
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "imagekit_public_mcp": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote@latest", "https://devtools-mcp.imagekit.io/mcp"]
+    },
+    "imagekit_api": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote@latest", "https://api-mcp.imagekit.in/sse"]
+    }
+  }
+}
+```
+
+> **Note:** Restart Claude Desktop / ClaudeCode after making changes for the MCP servers to take effect.
+
+### Codex
+
+Install Skills
+
+```bash
+npx skills add imagekit-developer/skills --all
+```
+
+Add MCP servers via CLI:
+
+```bash
+codex mcp add imagekit_public_mcp --url https://devtools-mcp.imagekit.io/mcp
+codex mcp add imagekit_api --url https://api-mcp.imagekit.in/sse
+```
+
+Or edit `~/.codex/config.toml` directly:
+
+```toml
+[mcp_servers.imagekit_public_mcp]
+url = "https://devtools-mcp.imagekit.io/mcp"
+
+[mcp_servers.imagekit_api]
+url = "https://api-mcp.imagekit.in/sse"
+```
+
+> **Note:** Restart Codex after adding MCP servers for them to take effect.
+
+### VS Code Copilot
+
+Install Skills
+
+```bash
+npx skills add imagekit-developer/skills --all
+```
+
+Install MCP servers via the command line:
+
+```bash
+code --add-mcp "{\"name\":\"imagekit_public_mcp\",\"type\":\"http\",\"url\":\"https://devtools-mcp.imagekit.io/mcp\"}"
+code --add-mcp "{\"name\":\"imagekit_api\",\"type\":\"http\",\"url\":\"https://api-mcp.imagekit.in/sse\"}"
+```
+
+Or install via the VS Code UI:
+
+1. Open the Command Palette (`⇧⌘P`) and run **MCP: Add Server**
+2. Select **HTTP (http or Server Sent Event)** as the server type
+3. Enter the server URL when prompted:
+   - Imagekit Public MCP: `https://devtools-mcp.imagekit.io/mcp`
+   - Imagekit API MCP: `https://api-mcp.imagekit.in/sse`
+4. Enter the server name (`imagekit_public_mcp` or `imagekit_api`)
+
+> **Note:** Restart VS Code after adding MCP servers for them to take effect.
+
+### Cursor
+
+Install Skills
+
+```bash
+npx skills add imagekit-developer/skills --all
+```
+
+Add MCP server via these buttons
+1. Install Public MCP Server [![Install Public MCP Server](https://cursor.com/deeplink/mcp-install-light.svg)](https://cursor.com/en-US/install-mcp?name=imagekit_public_mcp&config=eyJ1cmwiOiJodHRwczovL2RldnRvb2xzLW1jcC5pbWFnZWtpdC5pby9tY3AifQ%3D%3D)
+
+2. Install API MCP Server [![Install API MCP Server](https://cursor.com/deeplink/mcp-install-light.svg)](https://cursor.com/en-US/install-mcp?name=imagekit_api&config=eyJ1cmwiOiJodHRwczovL2FwaS1tY3AuaW1hZ2VraXQuaW4vc3NlIn0%3D)
+
+
+Or edit your Cursor MCP configuration at `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "imagekit_public_mcp": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote@latest", "https://devtools-mcp.imagekit.io/mcp"]
+    },
+    "imagekit_api": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote@latest", "https://api-mcp.imagekit.in/sse"]
+    }
+  }
+}
+```
+
+> **Note:** Restart Cursor after adding MCP servers for them to take effect.
+
+### Windsurf
+
+```bash
+npx skills add imagekit-developer/skills --all
+```
+
+
+Or edit your Windsurf configuration at `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "imagekit_public_mcp": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote@latest", "https://devtools-mcp.imagekit.io/mcp"]
+    },
+    "imagekit_api": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote@latest", "https://api-mcp.imagekit.in/sse"]
+    }
+  }
+}
+```
+
+> **Note:** Restart Windsurf after adding MCP servers for them to take effect.
 
 ## Usage
 
