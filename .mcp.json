@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "imagekit_public_mcp": {
+      "description": "MCP server for ImageKit public api for searching docs and transformation building.",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote@latest",
+        "https:///devtools-mcp.imagekit.io/.mcp"
+      ],
+      "type": "stdio"
+    },
+    "imagekit_api": {
+      "command": "npx",
+      "description": "MCP server for ImageKit APIs for managing ImageKit resources and accounts.",
+      "args": [
+        "-y",
+        "mcp-remote@latest",
+        "https://api-mcp.imagekit.in/sse"
+      ],
+      "type": "stdio"
+    }
+  }
+}

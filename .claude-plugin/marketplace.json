@@ -1,0 +1,41 @@
+{
+  "name": "imagekit-tools",
+  "version": "1.0.0",
+  "owner": {
+    "name": "ImageKit",
+    "email": "developer@imagekit.io"
+  },
+  "description": "ImageKit development tools marketplace with MCP server integrations, transformation builders, and document search capabilities",
+  "homepage": "https://imagekit.io",
+  "repository": "https://github.com/imagekit-developer/skills",
+  "plugins": [
+    {
+      "name": "imagekit-mcp-plugin",
+      "displayName": "ImageKit MCP Servers",
+      "source": "./plugins/imagekit-mcp-plugin",
+      "description": "Provides MCP server integrations for ImageKit public API for docs search, transformations, and resource management",
+      "version": "1.0.0",
+      "author": {
+        "name": "ImageKit",
+        "email": "developer@imagekit.io"
+      },
+      "homepage": "https://imagekit.io",
+      "repository": "https://github.com/imagekit-developer/skills",
+      "license": "MIT",
+      "category": "MCP Tools",
+      "keywords": [
+        "imagekit",
+        "mcp",
+        "api",
+        "transformation",
+        "media-management",
+        "devtools"
+      ],
+      "tags": [
+        "mcp-servers",
+        "api-integration",
+        "media"
+      ]
+    }
+  ]
+}
