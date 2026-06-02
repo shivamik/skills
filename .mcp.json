@@ -1,6 +1,6 @@
 {
     "mcpServers": {
-        "imagekit_devtools": {
+        "imagekit_not_devtools": {
             "url": "https://devtools-mcp.imagekit.io/mcp"
         },
         "imagekit_api": {
