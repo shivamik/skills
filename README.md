@@ -12,6 +12,7 @@ Reusable AI agent skills for [ImageKit.io](https://imagekit.io) — install them
 | **search-docs** | Search ImageKit documentation with optimized queries and source selection |
 | **transformation-builder** | Build ImageKit image/video transformations — AI editing, background removal, resize, crop, overlays, and more |
 | **upload-files** | Upload files to ImageKit media library with folder paths, tags, and metadata |
+| **ai-tasks** | Apply AI-powered analysis to images for business-specific tagging, metadata extraction, and quality checks using controlled vocabularies |
 
 ## Installation
 
@@ -40,7 +41,7 @@ Follow these steps to install the ImageKit plugin in Claude Code:
 4. **Install Plugin** — Find and install the ImageKit Skills plugin
    ![Install plugin](screenshots/claude/4.png)
 
-5. **Install MCP Servers** — Click on **Connectors** in the installed plugin and install the MCP servers (`imagekit_public_mcp` and `imagekit_api`)
+5. **Install MCP Servers** — Click on **Connectors** in the installed plugin and install the MCP servers (`imagekit_devtools` and `imagekit_api`)
    ![Install connectors](screenshots/claude/5.png)
 
 6. **Complete Authentication** — Complete authentication for the `imagekit_api` server when prompted
@@ -59,8 +60,8 @@ npx skills add imagekit-developer/skills --all
 Run the following command in your terminal:
 
 ```bash
-claude mcp add imagekit_public_mcp https://devtools-mcp.imagekit.io/mcp
-claude mcp add imagekit_api --transport sse https://api-mcp.imagekit.in/sse
+claude mcp add imagekit_devtools https://devtools-mcp.imagekit.io/mcp
+claude mcp add imagekit_api --transport http https://api-mcp.imagekit.in/mcp
 ```
 
 Or edit your Claude Desktop configuration file:
@@ -70,13 +71,13 @@ Or edit your Claude Desktop configuration file:
 ```json
 {
   "mcpServers": {
-    "imagekit_public_mcp": {
+    "imagekit_devtools": {
       "command": "npx",
       "args": ["-y", "mcp-remote@latest", "https://devtools-mcp.imagekit.io/mcp"]
     },
     "imagekit_api": {
       "command": "npx",
-      "args": ["-y", "mcp-remote@latest", "https://api-mcp.imagekit.in/sse"]
+      "args": ["-y", "mcp-remote@latest", "https://api-mcp.imagekit.in/mcp"]
     }
   }
 }
@@ -95,18 +96,18 @@ npx skills add imagekit-developer/skills --all
 Add MCP servers via CLI:
 
 ```bash
-codex mcp add imagekit_public_mcp --url https://devtools-mcp.imagekit.io/mcp
-codex mcp add imagekit_api --url https://api-mcp.imagekit.in/sse
+codex mcp add imagekit_devtools --url https://devtools-mcp.imagekit.io/mcp
+codex mcp add imagekit_api --url https://api-mcp.imagekit.in/mcp
 ```
 
 Or edit `~/.codex/config.toml` directly:
 
 ```toml
-[mcp_servers.imagekit_public_mcp]
+[mcp_servers.imagekit_devtools]
 url = "https://devtools-mcp.imagekit.io/mcp"
 
 [mcp_servers.imagekit_api]
-url = "https://api-mcp.imagekit.in/sse"
+url = "https://api-mcp.imagekit.in/mcp"
 ```
 
 > **Note:** Restart Codex after adding MCP servers for them to take effect.
@@ -140,8 +141,8 @@ npx skills add imagekit-developer/skills --all
 Install MCP servers via the command line:
 
 ```bash
-code --add-mcp "{\"name\":\"imagekit_public_mcp\",\"type\":\"http\",\"url\":\"https://devtools-mcp.imagekit.io/mcp\"}"
-code --add-mcp "{\"name\":\"imagekit_api\",\"type\":\"http\",\"url\":\"https://api-mcp.imagekit.in/sse\"}"
+code --add-mcp "{\"name\":\"imagekit_devtools\",\"type\":\"http\",\"url\":\"https://devtools-mcp.imagekit.io/mcp\"}"
+code --add-mcp "{\"name\":\"imagekit_api\",\"type\":\"http\",\"url\":\"https://api-mcp.imagekit.in/mcp\"}"
 ```
 
 Or install via the VS Code UI:
@@ -149,9 +150,9 @@ Or install via the VS Code UI:
 1. Open the Command Palette (`⇧⌘P`) and run **MCP: Add Server**
 2. Select **HTTP (http or Server Sent Event)** as the server type
 3. Enter the server URL when prompted:
-   - Imagekit Public MCP: `https://devtools-mcp.imagekit.io/mcp`
-   - Imagekit API MCP: `https://api-mcp.imagekit.in/sse`
-4. Enter the server name (`imagekit_public_mcp` or `imagekit_api`)
+   - Imagekit DevTools MCP: `https://devtools-mcp.imagekit.io/mcp`
+   - Imagekit API MCP: `https://api-mcp.imagekit.in/mcp`
+4. Enter the server name (`imagekit_devtools` or `imagekit_api`)
 
 > **Note:** Restart VS Code after adding MCP servers for them to take effect.
 
@@ -164,9 +165,9 @@ npx skills add imagekit-developer/skills --all
 ```
 
 Add MCP server via these buttons
-1. Install Public MCP Server [![Install Public MCP Server](https://cursor.com/deeplink/mcp-install-light.svg)](https://cursor.com/en-US/install-mcp?name=imagekit_public_mcp&config=eyJ1cmwiOiJodHRwczovL2RldnRvb2xzLW1jcC5pbWFnZWtpdC5pby9tY3AifQ%3D%3D)
+1. Install DevTools MCP Server [![Install DevTools MCP Server](https://cursor.com/deeplink/mcp-install-light.svg)](https://cursor.com/en-US/install-mcp?name=imagekit_devtools&config=eyJ1cmwiOiJodHRwczovL2RldnRvb2xzLW1jcC5pbWFnZWtpdC5pby9tY3AifQ%3D%3D)
 
-2. Install API MCP Server [![Install API MCP Server](https://cursor.com/deeplink/mcp-install-light.svg)](https://cursor.com/en-US/install-mcp?name=imagekit_api&config=eyJ1cmwiOiJodHRwczovL2FwaS1tY3AuaW1hZ2VraXQuaW4vc3NlIn0%3D)
+2. Install API MCP Server [![Install API MCP Server](https://cursor.com/deeplink/mcp-install-light.svg)](https://cursor.com/en-US/install-mcp?name=imagekit_api&config=eyJ1cmwiOiJodHRwczovL2FwaS1tY3AuaW1hZ2VraXQuaW4vbWNwIn0%3D)
 
 
 Or edit your Cursor MCP configuration at `~/.cursor/mcp.json`:
@@ -174,11 +175,11 @@ Or edit your Cursor MCP configuration at `~/.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
-    "imagekit_public_mcp": {
+    "imagekit_devtools": {
         "url": "https://devtools-mcp.imagekit.io/mcp"
     },
     "imagekit_api": {
-        "url": "https://api-mcp.imagekit.in/sse"
+        "url": "https://api-mcp.imagekit.in/mcp"
     }
   }
 }
@@ -198,11 +199,11 @@ Or edit your Windsurf configuration at `~/.codeium/windsurf/mcp_config.json`:
 ```json
 {
   "mcpServers": {
-    "imagekit_public_mcp": {
+    "imagekit_devtools": {
         "url": "https://devtools-mcp.imagekit.io/mcp"
     },
     "imagekit_api": {
-        "url": "https://api-mcp.imagekit.in/sse"
+        "url": "https://api-mcp.imagekit.in/mcp"
     }
   }
 }

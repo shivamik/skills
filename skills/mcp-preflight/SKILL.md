@@ -1,6 +1,6 @@
 ---
 name: mcp-preflight
-description: "MANDATORY PRE-STEP: You MUST read this skill BEFORE calling ANY ImageKit MCP tool (mcp_imagekit_api_* or mcp_imagekit_public_mcp_*). This skill tells you which MCP server owns which capability, how to route requests, and critical rules like never using mcp_imagekit_api_upload_files. Covers: file management, folder ops, cache purge, metadata, search_docs, transformation_builder, upload routing."
+description: "MANDATORY PRE-STEP: You MUST read this skill BEFORE calling ANY ImageKit MCP tool (mcp_imagekit_api_* or mcp_imagekit_devtools_*). This skill tells you which MCP server owns which capability, how to route requests, and critical rules like never using mcp_imagekit_api_upload_files. Covers: file management, folder ops, cache purge, metadata, search_docs, transformation_builder, upload routing."
 ---
 
 # MCP Preflight
@@ -27,9 +27,9 @@ Handles all CRUD operations on your ImageKit media library:
 - URL endpoints and origins management
 - Account usage stats
 
-### `imagekit_public_mcp` — Public Tools Server
+### `imagekit_devtools` — Public Tools Server
 
-Prefix: `mcp_imagekit_public_mcp_*`
+Prefix: `mcp_imagekit_devtools_*`
 
 Two tools only — no auth required:
 
@@ -49,10 +49,10 @@ Two tools only — no auth required:
 | Cache purge | `mcp_imagekit_api_*` |
 | URL endpoints, origins | `mcp_imagekit_api_*` |
 | **Upload files** | **DO NOT use MCP** — use `skills/upload-files/resources/upload.py` |
-| How to do something in ImageKit | `mcp_imagekit_public_mcp_search_docs` |
-| Build a transformation URL | `mcp_imagekit_public_mcp_transformation_builder` |
-| Find SDK usage or API parameters | `mcp_imagekit_public_mcp_search_docs` |
-| Verify feature exists or find limits | `mcp_imagekit_public_mcp_search_docs` |
+| How to do something in ImageKit | `mcp_imagekit_devtools_search_docs` |
+| Build a transformation URL | `mcp_imagekit_devtools_transformation_builder` |
+| Find SDK usage or API parameters | `mcp_imagekit_devtools_search_docs` |
+| Verify feature exists or find limits | `mcp_imagekit_devtools_search_docs` |
 
 ## Critical Rules
 
