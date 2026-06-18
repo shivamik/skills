@@ -1,6 +1,6 @@
 {
   "name": "imagekit-tools",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "owner": {
     "name": "ImageKit",
     "email": "developer@imagekit.io"
@@ -13,8 +13,8 @@
       "name": "imagekit-plugin",
       "displayName": "ImageKit Plugin",
       "source": "./",
-      "description": "Provides MCP server integrations for ImageKit public API for docs search, transformations, and resource management",
-      "version": "1.0.0",
+      "description": "Provides MCP server integrations for ImageKit public API for docs search, transformations, SDK reference, and resource management",
+      "version": "1.1.0",
       "author": {
         "name": "ImageKit",
         "email": "developer@imagekit.io"

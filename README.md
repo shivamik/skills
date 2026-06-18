@@ -9,6 +9,7 @@ Reusable AI agent skills for [ImageKit.io](https://imagekit.io) — install them
 | Skill | Description |
 |-------|-------------|
 | **mcp-preflight** | Mandatory routing guide — tells the agent which MCP server to call for what, before every ImageKit tool invocation |
+| **imagekit-sdk-reference** | TypeScript SDK reference — method signatures, types (File, Folder), error handling, and examples for `@imagekit/nodejs` |
 | **search-docs** | Search ImageKit documentation with optimized queries and source selection |
 | **transformation-builder** | Build ImageKit image/video transformations — AI editing, background removal, resize, crop, overlays, and more |
 | **upload-files** | Upload files to ImageKit media library with folder paths, tags, and metadata |
