@@ -9,7 +9,7 @@ Read this skill before calling any `mcp_imagekit_api_*` tool or writing TypeScri
 
 **Rules:**
 1. Use exact parameter names — the SDK is strict about camelCase
-2. `assets.list()` returns `(File | Folder)[]` — use a **type predicate** (`: item is File`) in `.filter()` or access properties inside an `if (item.type === 'file')` block. A plain `.filter((item) => item.type === 'file')` does **NOT** narrow the type.
+2. `assets.list()` returns `(File | Folder)[]` — use `for...of` + `if (item.type === 'file')` to narrow (preferred in MCP/Deno context). Do NOT use `.filter()` — the type predicate `item is File` collides with Deno's global `File` type (see Gotchas).
 3. Always wrap calls in try/catch for `ImageKit.APIError`
 4. Use `skip`/`limit` for pagination (max 1000 per request)
 5. **Never upload files via `mcp_imagekit_api_execute`** — use the `upload-files` skill instead
@@ -21,37 +21,58 @@ Read this skill before calling any `mcp_imagekit_api_*` tool or writing TypeScri
 
 ## TypeScript Gotchas
 
-> **Key insight:** Any time you iterate or access properties on SDK results, prefer `for...of` + `if` blocks — TypeScript always narrows inside them. Only use `.filter()` with an explicit type predicate.
+> **Key insight:** In the MCP execution context (Deno runtime), **always use `for...of` + `if` blocks** for type narrowing. The type predicate approach (`item is File`) fails because Deno's global `File` (the Blob-based Web API) shadows the ImageKit SDK's `File` type.
 
 | Pattern | Problem | Fix |
 |---------|---------|-----|
-| `.filter(i => i.type === 'file')` | Does NOT narrow the union type | Use type predicate `: i is File` |
+| `.filter(i => i.type === 'file')` | Does NOT narrow the union type | Use `for...of` + `if` |
+| `.filter((i): i is File => ...)` | Global `File` shadows SDK `File` in Deno | Use `for...of` + `if` |
 | `.find(i => ...)` | Returns `T \| undefined` | Check for `undefined` + narrow type |
-| `.filter().map()` | `.map()` inherits un-narrowed type | Put type predicate on `.filter()` |
+| `.filter().map()` | `.map()` inherits un-narrowed type | Use `for...of` + `if` + push |
 | `file.tags` | `string[] \| null` | Use `?.` or null check |
 | `file.AITags` | `Array \| null` | Use `?.` or null check |
 | `event.file` | Webhook event is a discriminated union | Narrow by `event.type` first |
-| `for...of` + `if` block | — | Always works for narrowing |
+| `for...of` + `if` block | — | **Always works — use this** |
 
-### Why `.filter()` without a type predicate fails
+### Why `.filter()` fails in MCP context (two separate issues)
 
-TypeScript's `.filter()` returns the same array type unless the callback has an explicit type predicate (`item is File`). A boolean-returning callback does **not** narrow the output type — TypeScript cannot carry narrowing information out of a callback and into the return type.
+**Issue 1: `.filter()` without a type predicate does not narrow.**
+TypeScript's `.filter()` returns the same array type unless the callback has a type predicate. A boolean callback does NOT narrow the output type.
 
 ```typescript
-// ❌ DOES NOT COMPILE — .filter() without type predicate does NOT narrow:
+// ❌ DOES NOT COMPILE — no narrowing:
 const files = result.filter((item) => item.type === 'file');
-files[0].fileId; // TS ERROR: Property 'fileId' does not exist on type 'File | Folder'
+files[0].fileId; // TS ERROR: 'fileId' does not exist on type 'File | Folder'
+```
 
-// ✅ Option A: Type predicate in .filter()
+**Issue 2: Type predicate `item is File` collides with global `File` in Deno.**
+In the MCP execution environment (Deno), the global `File` type (Web API Blob-based) shadows the SDK's `File` type. TypeScript resolves `File` in the predicate to the global, causing:
+
+```typescript
+// ❌ DOES NOT COMPILE in Deno/MCP — global File ≠ SDK File:
 const files = result.filter((item): item is File => item.type === 'file');
-files[0].fileId; // works
+// Error: Type 'File' is not assignable to type 'import("@imagekit/nodejs/...").File'
+//   Types of property 'type' are incompatible.
+//   Type 'string' is not assignable to type '"file" | "file-version"'
+```
 
-// ✅ Option B: for-loop with if-block (control flow narrowing)
+**✅ RECOMMENDED: Always use `for...of` + `if` in MCP code:**
+```typescript
+// ✅ ALWAYS WORKS — control flow narrowing, no type name needed:
+const result = await client.assets.list({ type: 'file', limit: 10 });
+const files = [];
 for (const item of result) {
   if (item.type === 'file') {
-    item.fileId; // works — TypeScript narrows inside the block
+    files.push({
+      name: item.name,
+      fileId: item.fileId,
+      filePath: item.filePath,
+      size: item.size,
+      url: item.url
+    });
   }
 }
+return files;
 ```
 
 ### `.find()` returns `T | undefined`
@@ -182,26 +203,28 @@ const result = await client.assets.list({
 // Returns: (File | Folder)[] — a flat array, NOT { files, folders }
 ```
 
-**⚠️ CRITICAL: Type narrowing is required.** Even with `type: 'file'`, the TypeScript return type is `(File | Folder)[]`. You MUST narrow before accessing file-only properties like `filePath`, `fileType`, `size`, `url`:
+**⚠️ CRITICAL: Type narrowing is required.** Even with `type: 'file'`, the TypeScript return type is `(File | Folder)[]`. You MUST narrow before accessing file-only properties like `filePath`, `fileType`, `size`, `url`.
+
+**In MCP/Deno context, always use `for...of` + `if`** — do NOT use `.filter()` with `item is File` (the global `File` type shadows the SDK's):
 
 ```typescript
-// ❌ DOES NOT COMPILE — plain .filter() does NOT narrow:
-const result = await client.assets.list({ type: 'file', limit: 10 });
+// ❌ DOES NOT COMPILE — .filter() without predicate does not narrow:
 const files = result.filter((item) => item.type === 'file');
-files[0].fileId; // TS ERROR: Property 'fileId' does not exist on type 'File | Folder'
+files[0].fileId; // TS ERROR: 'fileId' does not exist on type 'File | Folder'
 
-// ✅ Option A: Type predicate in .filter()
-const result = await client.assets.list({ type: 'file', limit: 10 });
+// ❌ DOES NOT COMPILE in Deno — global File ≠ SDK File:
 const files = result.filter((item): item is File => item.type === 'file');
-files.forEach(f => console.log(f.name, f.filePath, f.size, f.url)); // No TS error
+// Error: Type 'File' is not assignable to type 'import("@imagekit/nodejs/...").File'
 
-// ✅ Option B: for-loop with if-block
+// ✅ CORRECT — for...of + if (always works in MCP/Deno):
 const result = await client.assets.list({ type: 'file', limit: 10 });
+const files = [];
 for (const item of result) {
   if (item.type === 'file') {
-    console.log(item.fileId, item.url); // TypeScript narrows inside the block
+    files.push({ name: item.name, fileId: item.fileId, filePath: item.filePath, size: item.size, url: item.url });
   }
 }
+return files;
 ```
 
 **Shared properties** (safe on both File and Folder): `name`, `type`, `customMetadata`, `createdAt`, `updatedAt`
@@ -345,7 +368,11 @@ const event = client.webhooks.unsafeUnwrap(rawBody);
 for (let skip = 0; ; skip += 100) {
   const page = await client.assets.list({ skip, limit: 100 });
   if (!page.length) break;
-  const files = page.filter((item): item is File => item.type === 'file');
+  for (const item of page) {
+    if (item.type === 'file') {
+      // item is narrowed to File here
+    }
+  }
 }
 
 // Error handling
