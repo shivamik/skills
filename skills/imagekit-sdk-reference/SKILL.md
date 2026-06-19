@@ -9,11 +9,89 @@ Read this skill before calling any `mcp_imagekit_api_*` tool or writing TypeScri
 
 **Rules:**
 1. Use exact parameter names — the SDK is strict about camelCase
-2. `assets.list()` returns `(File | Folder)[]` — always narrow the type before accessing file-specific properties
+2. `assets.list()` returns `(File | Folder)[]` — use a **type predicate** (`: item is File`) in `.filter()` or access properties inside an `if (item.type === 'file')` block. A plain `.filter((item) => item.type === 'file')` does **NOT** narrow the type.
 3. Always wrap calls in try/catch for `ImageKit.APIError`
 4. Use `skip`/`limit` for pagination (max 1000 per request)
 5. **Never upload files via `mcp_imagekit_api_execute`** — use the `upload-files` skill instead
 6. Upload in SDK code is only valid when the `file` param is a **URL string** — never pass local file paths, Buffers, or streams through MCP
+7. Nullable properties (`tags`, `AITags`, `customCoordinates`) require optional chaining (`?.`) or null checks
+8. `.find()` returns `T | undefined` — always check for `undefined` before accessing properties
+
+---
+
+## TypeScript Gotchas
+
+> **Key insight:** Any time you iterate or access properties on SDK results, prefer `for...of` + `if` blocks — TypeScript always narrows inside them. Only use `.filter()` with an explicit type predicate.
+
+| Pattern | Problem | Fix |
+|---------|---------|-----|
+| `.filter(i => i.type === 'file')` | Does NOT narrow the union type | Use type predicate `: i is File` |
+| `.find(i => ...)` | Returns `T \| undefined` | Check for `undefined` + narrow type |
+| `.filter().map()` | `.map()` inherits un-narrowed type | Put type predicate on `.filter()` |
+| `file.tags` | `string[] \| null` | Use `?.` or null check |
+| `file.AITags` | `Array \| null` | Use `?.` or null check |
+| `event.file` | Webhook event is a discriminated union | Narrow by `event.type` first |
+| `for...of` + `if` block | — | Always works for narrowing |
+
+### Why `.filter()` without a type predicate fails
+
+TypeScript's `.filter()` returns the same array type unless the callback has an explicit type predicate (`item is File`). A boolean-returning callback does **not** narrow the output type — TypeScript cannot carry narrowing information out of a callback and into the return type.
+
+```typescript
+// ❌ DOES NOT COMPILE — .filter() without type predicate does NOT narrow:
+const files = result.filter((item) => item.type === 'file');
+files[0].fileId; // TS ERROR: Property 'fileId' does not exist on type 'File | Folder'
+
+// ✅ Option A: Type predicate in .filter()
+const files = result.filter((item): item is File => item.type === 'file');
+files[0].fileId; // works
+
+// ✅ Option B: for-loop with if-block (control flow narrowing)
+for (const item of result) {
+  if (item.type === 'file') {
+    item.fileId; // works — TypeScript narrows inside the block
+  }
+}
+```
+
+### `.find()` returns `T | undefined`
+
+```typescript
+const item = assets.find((i) => i.name === 'hero.jpg');
+// Type: (File | Folder) | undefined
+
+item.fileId; // ❌ Two errors: possibly undefined AND possibly Folder
+
+// ✅ Fix:
+if (item && item.type === 'file') {
+  item.fileId; // works
+}
+```
+
+### Nullable properties on File
+
+```typescript
+const file = await client.files.get(fileId);
+
+file.tags.length;     // ❌ tags is string[] | null
+file.tags?.length;    // ✅ optional chaining
+
+file.AITags.map(...); // ❌ AITags is Array | null
+file.AITags?.map(...); // ✅
+```
+
+### Webhook event discrimination
+
+```typescript
+const event = client.webhooks.unwrap(rawBody, { headers });
+
+event.file.url; // ❌ not all event types have .file
+
+// ✅ Narrow by event type
+if (event.type === 'FILE.CREATE') {
+  event.file.url; // safe
+}
+```
 
 ---
 
@@ -107,12 +185,23 @@ const result = await client.assets.list({
 **⚠️ CRITICAL: Type narrowing is required.** Even with `type: 'file'`, the TypeScript return type is `(File | Folder)[]`. You MUST narrow before accessing file-only properties like `filePath`, `fileType`, `size`, `url`:
 
 ```typescript
-// ✅ CORRECT — narrow the type first
+// ❌ DOES NOT COMPILE — plain .filter() does NOT narrow:
+const result = await client.assets.list({ type: 'file', limit: 10 });
+const files = result.filter((item) => item.type === 'file');
+files[0].fileId; // TS ERROR: Property 'fileId' does not exist on type 'File | Folder'
+
+// ✅ Option A: Type predicate in .filter()
 const result = await client.assets.list({ type: 'file', limit: 10 });
 const files = result.filter((item): item is File => item.type === 'file');
 files.forEach(f => console.log(f.name, f.filePath, f.size, f.url)); // No TS error
 
-// ❌ WRONG — result.forEach(f => f.filePath) → TS error: 'filePath' not on Folder
+// ✅ Option B: for-loop with if-block
+const result = await client.assets.list({ type: 'file', limit: 10 });
+for (const item of result) {
+  if (item.type === 'file') {
+    console.log(item.fileId, item.url); // TypeScript narrows inside the block
+  }
+}
 ```
 
 **Shared properties** (safe on both File and Folder): `name`, `type`, `customMetadata`, `createdAt`, `updatedAt`
