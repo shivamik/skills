@@ -20,7 +20,7 @@ Two tools only:
 | Tool | Purpose |
 |------|----------|
 | `search_doc` | Local search that only searches TypeScript SDK code — use to find method signatures and types |
-| `execute` | LLM writes TypeScript code and the server executes it. **All operations go through this tool.** |
+| `execute` | Executes TypeScript code against the ImageKit SDK to perform CRUD operations |
 
 All CRUD operations are performed by writing TypeScript code that runs via `execute`:
 
@@ -56,7 +56,7 @@ Two tools only — no auth required:
 | Cache purge | `mcp_imagekit_api_execute` (write TS code) |
 | URL endpoints, origins | `mcp_imagekit_api_execute` (write TS code) |
 | Find SDK method signatures/types | `mcp_imagekit_api_search_doc` |
-| **Upload files** | **DO NOT use `mcp_imagekit_api_execute`** for local files — use `skills/upload-files/resources/upload.py`. URL-based uploads are OK via execute. |
+| **Upload files** | **DO NOT use `mcp_imagekit_api_execute`** for local files — use `skills/upload-files/resources/upload.py`. URL-based uploads are OK via `mcp_imagekit_api_execute`. |
 | How to do something in ImageKit | `mcp_imagekit_devtools_search_docs` |
 | Build a transformation URL | `mcp_imagekit_devtools_transformation_builder` |
 | Find SDK usage or API parameters | `mcp_imagekit_devtools_search_docs` |
