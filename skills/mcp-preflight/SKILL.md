@@ -61,6 +61,18 @@ Two tools only — no auth required:
 | Build a transformation URL | `mcp_imagekit_devtools_transformation_builder` |
 | Find SDK usage or API parameters | `mcp_imagekit_devtools_search_docs` |
 | Verify feature exists or find limits | `mcp_imagekit_devtools_search_docs` |
+| Search / filter / list assets | `mcp_imagekit_api_execute` (write TS code) — read `search-assets` skill first |
+| Integrate ImageKit into a framework/SDK/CMS | read `imagekit-integrations` skill first |
+
+## Searching / Filtering Assets
+
+When listing assets with `client.assets.list`, **always pass a `searchQuery`** to filter on the server instead of fetching everything and filtering in code. A precise `searchQuery` trims the output to exactly what you need, saving tokens and API calls.
+
+**Read the `search-assets` skill** before constructing any `searchQuery` — it is the cheatsheet for the Lucene-like filter syntax, operators, and field reference.
+
+## Integration Use Cases
+
+When the task is to integrate ImageKit into a specific technology (front-end, back-end, mobile, CMS, external storage, upload widgets, URL generation, etc.), **read the `imagekit-integrations` skill** to find the right SDK/plugin and what it covers before writing code.
 
 ## Before Calling imagekit_api
 
@@ -72,3 +84,4 @@ Two tools only — no auth required:
 2. **ALWAYS call `search_docs` before writing any ImageKit SDK code** — do not rely on training data for method signatures or parameters.
 3. **Do NOT read library source code to figure out usage** — `search_docs` returns official docs and working examples. Only read source code as a last resort when docs fail.
 4. **Use `transformation_builder` instead of hand-crafting transformation URLs** — it knows correct parameter syntax and ordering.
+5. **ALWAYS pass a `searchQuery` to `client.assets.list`** to filter assets server-side — read the `search-assets` skill first. Prefer search queries over fetching-and-filtering; they trim the output.

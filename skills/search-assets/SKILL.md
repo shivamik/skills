@@ -1,6 +1,6 @@
 ---
 name: search-assets
-description: "Read when constructing an ImageKit searchQuery for client.assets.list() — advanced search filter syntax, operators, field reference, and examples. Use when searching/filtering files or folders by name, tags, date, size, format, path, or custom/embedded metadata."
+description: "MANDATORY: Read this whenever calling client.assets.list() with a searchQuery, or when searching/filtering/listing ImageKit files or folders. Covers the Lucene-like searchQuery filter syntax, operators, field reference, and examples for filtering by name, tags, date, size, format, path, or custom/embedded metadata."
 ---
 
 # ImageKit Search Queries (`searchQuery`)
