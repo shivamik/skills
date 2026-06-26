@@ -66,9 +66,12 @@ Two tools only — no auth required:
 
 ## Searching / Filtering Assets
 
-When listing assets with `client.assets.list`, **always pass a `searchQuery`** to filter on the server instead of fetching everything and filtering in code. A precise `searchQuery` trims the output to exactly what you need, saving tokens and API calls.
+When listing assets with `client.assets.list`, **filter on the server** instead of fetching everything and filtering in code — that's what saves tokens and API calls. Pick the mechanism based on the need:
 
-**Read the `search-assets` skill** before constructing any `searchQuery` — it is the cheatsheet for the Lucene-like filter syntax, operators, and field reference.
+- **Simple list / browse** (by folder `path`, `type`, `tags`, `fileType`, plus `limit`/`skip`): pass those as top-level params and **omit `searchQuery`**. Without a `searchQuery` the call returns a typed `File[]` / `Folder[]`, so no narrowing is needed.
+- **Richer filters** (date or size ranges, full-text, custom metadata, AND/OR conditions): use a `searchQuery`. When `searchQuery` is present the top-level `type`/`tags`/`name` params are ignored, so move those conditions into the query string, and the result becomes `(File | Folder)[]` (narrow per item with `if (item.type === 'file')`).
+
+Either way, don't fetch-everything-then-filter-in-code. **Read the `search-assets` skill** before constructing any `searchQuery` — it is the cheatsheet for the Lucene-like filter syntax, operators, and field reference.
 
 ## Integration Use Cases
 
@@ -84,4 +87,4 @@ When the task is to integrate ImageKit into a specific technology (front-end, ba
 2. **ALWAYS call `search_docs` before writing any ImageKit SDK code** — do not rely on training data for method signatures or parameters.
 3. **Do NOT read library source code to figure out usage** — `search_docs` returns official docs and working examples. Only read source code as a last resort when docs fail.
 4. **Use `transformation_builder` instead of hand-crafting transformation URLs** — it knows correct parameter syntax and ordering.
-5. **ALWAYS pass a `searchQuery` to `client.assets.list`** to filter assets server-side — read the `search-assets` skill first. Prefer search queries over fetching-and-filtering; they trim the output.
+5. **Filter `client.assets.list` server-side, not in code** — use top-level params (`path`, `type`, `tags`, `fileType`, `limit`, `skip`) for simple list/browse (omit `searchQuery` to get a typed `File[]`/`Folder[]`), and a `searchQuery` only for richer conditions (ranges, full-text, custom metadata, AND/OR). Read the `search-assets` skill first.

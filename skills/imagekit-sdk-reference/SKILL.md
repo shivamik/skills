@@ -9,8 +9,8 @@ Read this skill before calling any `mcp_imagekit_api_*` tool or writing TypeScri
 
 **Rules:**
 1. Use exact parameter names — the SDK is strict about camelCase
-2. `assets.list()` returns `(File | Folder)[]` — use `for...of` + `if (item.type === 'file')` to narrow (preferred in MCP/Deno context). Do NOT use `.filter()` — the type predicate `item is File` collides with Deno's global `File` type (see Gotchas).
-3. Always wrap calls in try/catch for `ImageKit.APIError`
+2. `assets.list()` returns `(File | Folder)[]`. **Without** a `searchQuery`, pass `{ type: 'file' }` (or `'folder'`) to get a typed `File[]` (or `Folder[]`) directly — no narrowing needed. **With** a `searchQuery`, the API ignores the `type` param so the result stays a union: filter with `type = "file"` inside the query string and narrow with `for...of` + `if (item.type === 'file')`. Do NOT use `.filter((i): i is File => ...)` — the predicate collides with Deno's global `File` (see Gotchas).
+3. In `execute`/MCP code, do NOT try/catch single API calls — the tool reports errors for you. Only catch when you branch on a specific failure, and **duck-type** the error (`'status' in err`) rather than `instanceof ImageKit.APIError`, since a value import of the SDK is not available in the sandbox.
 4. Use `skip`/`limit` for pagination (max 1000 per request)
 5. **Never upload files via `mcp_imagekit_api_execute`** — use the `upload-files` skill instead
 6. Upload in SDK code is only valid when the `file` param is a **URL string** — never pass local file paths, Buffers, or streams through MCP
@@ -31,7 +31,6 @@ Read this skill before calling any `mcp_imagekit_api_*` tool or writing TypeScri
 | `.filter().map()` | `.map()` inherits un-narrowed type | Use `for...of` + `if` + push |
 | `file.tags` | `string[] \| null` | Use `?.` or null check |
 | `file.AITags` | `Array \| null` | Use `?.` or null check |
-| `event.file` | Webhook event is a discriminated union | Narrow by `event.type` first |
 | `for...of` + `if` block | — | **Always works — use this** |
 
 ### Why `.filter()` fails in MCP context (two separate issues)
@@ -56,10 +55,10 @@ const files = result.filter((item): item is File => item.type === 'file');
 //   Type 'string' is not assignable to type '"file" | "file-version"'
 ```
 
-**✅ RECOMMENDED: Always use `for...of` + `if` in MCP code:**
+**✅ RECOMMENDED: use `for...of` + `if` whenever the result is a union** (i.e. when you used a `searchQuery`, `type: 'all'`, or no `type`):
 ```typescript
 // ✅ ALWAYS WORKS — control flow narrowing, no type name needed:
-const result = await client.assets.list({ type: 'file', limit: 10 });
+const result = await client.assets.list({ searchQuery: 'type = "file"', limit: 10 });
 const files = [];
 for (const item of result) {
   if (item.type === 'file') {
@@ -99,19 +98,6 @@ file.tags?.length;    // ✅ optional chaining
 
 file.AITags.map(...); // ❌ AITags is Array | null
 file.AITags?.map(...); // ✅
-```
-
-### Webhook event discrimination
-
-```typescript
-const event = client.webhooks.unwrap(rawBody, { headers });
-
-event.file.url; // ❌ not all event types have .file
-
-// ✅ Narrow by event type
-if (event.type === 'FILE.CREATE') {
-  event.file.url; // safe
-}
 ```
 
 ---
@@ -203,29 +189,26 @@ const result = await client.assets.list({
 // Returns: (File | Folder)[] — a flat array, NOT { files, folders }
 ```
 
-**⚠️ CRITICAL: Type narrowing is required.** Even with `type: 'file'`, the TypeScript return type is `(File | Folder)[]`. You MUST narrow before accessing file-only properties like `filePath`, `fileType`, `size`, `url`.
+**Type narrowing depends on whether you use `searchQuery`:**
 
-**In MCP/Deno context, always use `for...of` + `if`** — do NOT use `.filter()` with `item is File` (the global `File` type shadows the SDK's):
-
-```typescript
-// ❌ DOES NOT COMPILE — .filter() without predicate does not narrow:
-const files = result.filter((item) => item.type === 'file');
-files[0].fileId; // TS ERROR: 'fileId' does not exist on type 'File | Folder'
-
-// ❌ DOES NOT COMPILE in Deno — global File ≠ SDK File:
-const files = result.filter((item): item is File => item.type === 'file');
-// Error: Type 'File' is not assignable to type 'import("@imagekit/nodejs/...").File'
-
-// ✅ CORRECT — for...of + if (always works in MCP/Deno):
-const result = await client.assets.list({ type: 'file', limit: 10 });
-const files = [];
-for (const item of result) {
-  if (item.type === 'file') {
-    files.push({ name: item.name, fileId: item.fileId, filePath: item.filePath, size: item.size, url: item.url });
+- **Without `searchQuery`** — pass `{ type: 'file' }` (or `'folder'`); the return type is `File[]` (or `Folder[]`), no narrowing needed:
+  ```typescript
+  const files = await client.assets.list({ type: 'file', path: '/uploads', limit: 100 }); // File[]
+  files[0].fileId; // ✅ no narrowing required
+  ```
+- **With `searchQuery`** — the API ignores the `type` param, so the result is `(File | Folder)[]`. Filter with `type = "file"` inside the query and narrow with `for...of` + `if`:
+  ```typescript
+  const result = await client.assets.list({ searchQuery: 'type = "file" AND size > "2mb"', limit: 100 });
+  const files = [];
+  for (const item of result) {
+    if (item.type === 'file') {
+      files.push({ name: item.name, fileId: item.fileId, filePath: item.filePath, size: item.size, url: item.url });
+    }
   }
-}
-return files;
-```
+  return files;
+  ```
+
+Do NOT narrow a union with `.filter((item): item is File => ...)` — in Deno the global `File` shadows the SDK's `File` and the predicate fails to compile. Use `for...of` + `if`.
 
 **Shared properties** (safe on both File and Folder): `name`, `type`, `customMetadata`, `createdAt`, `updatedAt`
 
@@ -346,21 +329,6 @@ const usage = await client.accounts.usage.get({ startDate: '2025-01-01', endDate
 
 ---
 
-## Webhooks
-
-```typescript
-// Verified parse (requires webhookSecret on client)
-const event = client.webhooks.unwrap(rawBody, { headers: req.headers });
-// event.type: 'FILE.CREATE' | 'FILE.UPDATE' | 'FILE.DELETE'
-//   | 'UPLOAD.POST_TRANSFORM.SUCCESS' | 'UPLOAD.POST_TRANSFORM.ERROR'
-//   | 'VIDEO_TRANSFORMATION.ACCEPTED' | 'VIDEO_TRANSFORMATION.READY' | 'VIDEO_TRANSFORMATION.ERROR'
-
-// Unverified parse
-const event = client.webhooks.unsafeUnwrap(rawBody);
-```
-
----
-
 ## Pagination & Error Handling
 
 ```typescript
@@ -375,14 +343,20 @@ for (let skip = 0; ; skip += 100) {
   }
 }
 
-// Error handling
-import ImageKit from '@imagekit/nodejs';
-try { await client.files.get('bad-id'); }
-catch (err) {
-  if (err instanceof ImageKit.APIError) {
-    err.status;  // 400 | 401 | 403 | 404 | 409 | 422 | 429 | 5xx
-    err.message; err.error; err.headers;
+// Error handling — in execute/MCP code you normally DON'T need try/catch: let the
+// error propagate and the tool reports it for you. The ONLY reason to catch is to
+// branch on a specific failure (e.g. treat 404 as "not found") — and then you must
+// re-throw everything you don't handle. Duck-type the error: a value import of the
+// SDK (import ImageKit from '@imagekit/nodejs') is NOT available in the Deno sandbox
+// and throws at runtime, so don't rely on `instanceof ImageKit.APIError`.
+try {
+  return await client.files.get(fileId);
+} catch (err) {
+  if (err && typeof err === 'object' && 'status' in err) {
+    const e = err as { status?: number; message?: string };
+    if (e.status === 404) return null;  // the one case we handle
   }
+  throw err;  // re-throw anything else — don't swallow it
 }
 // Auto-retries: connection errors, 408/409/429/5xx — up to 2× with exponential backoff
 ```

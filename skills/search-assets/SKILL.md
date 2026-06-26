@@ -75,13 +75,38 @@ format = "png" AND path : "/sales-banner/"              PNGs under a folder tree
 (size < "1mb" AND width > 500) OR (tags IN ["summer-sale", "banner"])
 ```
 
-## TypeScript usage
+## Custom metadata — discover field names first
+
+`"customMetadata.<field>"` only matches fields defined in your media library's custom-metadata schema, and the **allowed operators depend on the field's type** (Text/Textarea → `=` `:` `IN` `HAS`; Number/Date → `<` `<=` `>` `>=`; Boolean → `=`; Single/MultiSelect → `IN`). If the user's request mentions a custom attribute (brand, category, rating, SKU, season…), **list the schema first** to get the exact field name and type, then build the query:
 
 ```typescript
-// Recent + large files. assets.list returns (File | Folder)[] — narrow before
-// reading file-only props (see imagekit-sdk-reference for why for...of + if).
+const fields = await client.customMetadataFields.list();
+// each: { id, name, label, schema: { type: 'Text' | 'Number' | 'Date' | 'Boolean' | 'SingleSelect' | 'MultiSelect', ... } }
+const brand = fields.find((f) => f.name === 'brand' || f.label === 'Brand');
+if (!brand) throw new Error('No "brand" custom metadata field is defined');
+
 const result = await client.assets.list({
-  searchQuery: 'createdAt >= "7d" AND size > "2mb"',
+  searchQuery: 'type = "file" AND "customMetadata.brand" = "nike"',
+  limit: 100,
+});
+```
+
+Quote the whole `"customMetadata.<field>"` token. `"embeddedMetadata.<field>"` (e.g. `Keywords`, `DateTimeOriginal`, `LocationTaken`) works the same way, but embedded fields are read from the file itself and are not user-defined — no schema lookup needed.
+
+## TypeScript usage
+
+`client.assets.list()` returns `(File | Folder)[]`. How you get a typed result depends on whether you use `searchQuery`:
+
+**No `searchQuery` — pass `type` to get a typed array directly (no narrowing):**
+```typescript
+const files = await client.assets.list({ type: 'file', path: '/uploads', limit: 100 });
+//    ^ File[] — fileId, size, url are all available without narrowing
+```
+
+**With `searchQuery` — the API IGNORES the `type`/`tags`/`name` params**, so the result stays the `(File | Folder)[]` union. Put the type filter *inside* the query string and narrow each item:
+```typescript
+const result = await client.assets.list({
+  searchQuery: 'type = "file" AND createdAt >= "7d" AND size > "2mb"',
   limit: 100,
 });
 const files = [];
@@ -92,8 +117,8 @@ for (const item of result) {
 }
 ```
 
+**Full-text search — always pair `HAS` with `DESC_RELEVANCE`:**
 ```typescript
-// Full-text search — always pair HAS with DESC_RELEVANCE sorting.
 const result = await client.assets.list({
   searchQuery: 'name HAS "red dress"',
   sort: 'DESC_RELEVANCE',
@@ -101,18 +126,18 @@ const result = await client.assets.list({
 });
 ```
 
+**Paginate with `skip`/`limit` (max 1000 per page):**
 ```typescript
-// Paginate a search with skip/limit (max 1000 per page).
 for (let skip = 0; ; skip += 100) {
   const page = await client.assets.list({
-    searchQuery: 'tags IN ["sale", "summer"]',
+    searchQuery: 'type = "file" AND tags IN ["sale", "summer"]',
     skip,
     limit: 100,
   });
   if (!page.length) break;
   for (const item of page) {
     if (item.type === 'file') {
-      // item narrowed to File here
+      // item narrowed to File
     }
   }
 }
@@ -120,6 +145,7 @@ for (let skip = 0; ; skip += 100) {
 
 ## Gotchas
 
+- **`searchQuery` overrides params.** When `searchQuery` is present, the top-level `type`, `tags`, and `name` params have NO effect — express those filters inside the query string instead (e.g. `type = "file"`).
 - `name` `=`/`:` are **case-sensitive**; use `HAS` for case-insensitive matching.
 - `tags` queries search **both** `tags` and `AITags`.
 - `HAS` tokenizes on spaces/punctuation; the last token matches as a prefix (`"red"` matches `redwoods`). Pair with `sort: 'DESC_RELEVANCE'`.
