@@ -1,11 +1,11 @@
 ---
 name: imagekit-sdk-reference
-description: "MANDATORY: Read this before writing any ImageKit SDK code or calling mcp_imagekit_api_* tools. Provides complete TypeScript method signatures, parameters, return types, error handling, and examples for the @imagekit/nodejs SDK."
+description: "MANDATORY: Read this before writing any ImageKit SDK code or calling mcp_imagekit_api_execute tool. Provides complete TypeScript method signatures, parameters, return types, error handling, and examples for the @imagekit/nodejs SDK."
 ---
 
 # ImageKit TypeScript SDK Reference
 
-Read this skill before calling any `mcp_imagekit_api_*` tool or writing TypeScript code against the ImageKit SDK. It contains exact method signatures, parameter types, return shapes, and error handling patterns for `@imagekit/nodejs`.
+Read this skill before calling any `mcp_imagekit_api_execute` tool or writing TypeScript code against the ImageKit SDK. It contains exact method signatures, parameter types, return shapes, and error handling patterns for `@imagekit/nodejs`.
 
 **Rules:**
 1. Use exact parameter names — the SDK is strict about camelCase
