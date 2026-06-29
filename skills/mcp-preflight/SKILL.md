@@ -34,6 +34,8 @@ All CRUD operations are performed by writing TypeScript code that runs via `exec
 - URL endpoints and origins management
 - Account usage stats
 
+> Note: `execute` is a TypeScript code execution tool, reading `imagekit-sdk-reference` skill before writing code will help agent to get things right without unnecessary trial-and-error.
+
 ### `imagekit_devtools` — Public Tools Server
 
 Prefix: `mcp_imagekit_devtools_*`
