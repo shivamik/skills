@@ -73,6 +73,28 @@ When listing assets with `client.assets.list`, **filter on the server** instead 
 
 Either way, don't fetch-everything-then-filter-in-code. **Read the `search-assets` skill** before constructing any `searchQuery` — it is the cheatsheet for the Lucene-like filter syntax, operators, and field reference.
 
+## Using custom metadata fields
+
+Custom metadata fields are user-defined schema attached to files. Before filtering or searching on them, **list the available fields first** so you use the correct field names and value types:
+
+```ts
+const fields = await client.customMetadataFields.list();
+```
+
+This returns the configured fields with their `name`, `type`, and any allowed values — use it to build a valid `searchQuery` (see the `search-assets` skill).
+
+### Disambiguate vague requests
+
+When a request maps to something that *could* be a custom metadata field rather than a built-in attribute, **do not guess**. First call `client.customMetadataFields.list()` to see what fields exist, then ask the user to clarify which one they mean.
+
+Example: "find files reviewed by xyz"
+
+- "reviewed by" is not a built-in ImageKit attribute — it is likely a custom metadata field (e.g. `reviewedBy`).
+- List the custom metadata fields, then ask the user to confirm the field, for instance:
+  > Do you mean files where the custom metadata field `reviewedBy` equals `xyz`? I found these related fields: `reviewedBy`, `reviewer`, `approvedBy`.
+
+Only build the `searchQuery` once the field and intended value are confirmed.
+
 ## Integration Use Cases
 
 When the task is to integrate ImageKit into a specific technology (front-end, back-end, mobile, CMS, external storage, upload widgets, URL generation, etc.), **read the `imagekit-integrations` skill** to find the right SDK/plugin and what it covers before writing code.
